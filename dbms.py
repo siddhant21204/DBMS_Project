@@ -15,8 +15,7 @@ def warehouse_menu():
     2)Display list of suppliers to warehouse
     3)Display products availabe at warehouse
     4)Add product to warehouse
-    5)Restock product
-    6)Exit""")
+    5)Exit""")
 
 
 def store_menu():
@@ -25,8 +24,7 @@ def store_menu():
     2)Display list of warehouse delivering store
     3)Display products availabe at store
     4)Add product to store
-    5)Restock product
-    6)Exit""")
+    5)Exit""")
 
 
 def menu2():
@@ -63,8 +61,8 @@ def valid_sid(sid):
 def avail_w(wid , stock , pid):
     mycursor.execute("select Stock from stores1 where Prd_ID=%s and Wh_ID=%s" , (wid , pid))
     result = mycursor.fetchall()
-    if(result.__len__() > 0):
-        if(stock - result[0] < 0) :
+    if(result[0].__len__() > 0):
+        if((int)(result[0][0]) - (int)(stock) < 0) :
             return False
         else :
             return True
@@ -146,23 +144,7 @@ while(1):
                                 mycursor.execute("insert into stores1 values(%s,%s,%s)",(stock,pid,wid))
                                 mydb.commit()
                                 print("Product added to warehouse!")
-                        
-                    
                 elif(choice_warehouse==5):
-                    pid = int(input("Enter pid:"))
-                    stock = int(input("Enter updated stock:"))
-                    mycursor.execute("Select pid from product")
-                    result = mycursor.fetchall()
-                    for x in result:
-                        if(x[0] == int(pid)):
-                            mycursor.execute("select * from stores1 where Prd_id=%s and Wh_id=%s", (pid, wid))
-                            result2 = mycursor.fetchall()
-                            if(result2.__len__() > 0):
-                                mycursor.execute("update stores1 set Stock=%s where Prd_id=%s and Wh_id=%s",(stock,pid,wid))
-                                mydb.commit()
-                                break
-                    
-                elif(choice_warehouse==6):
                     break
                 else:
                     print("Enter a valid choice")
@@ -207,7 +189,7 @@ while(1):
                 store_menu()
                 choice_store = int(input("Enter store menu choice : "))
                 if(choice_store == 1):
-                    mycursor.execute("select * from store where ST_ID=%s",(sid,))
+                    mycursor.execute("select * from store where ST_ID=%s", (sid,))
                     result = mycursor.fetchall()
                     print("Store ID:%s \nStore Name:%s \nStore Address:%s " %(result[0][0],result[0][1],result[0][2]))
 
@@ -217,30 +199,28 @@ while(1):
                     for x in result : 
                         mycursor.execute("select * from warehouse where WID=%s" , (x[0],))
                         result2 = mycursor.fetchall()
-                        print("yo")
                         for y in result2:
                             print("Warehouse ID:%s \nWarehouse Name:%s \nWarehouse Address:%s "%(y[0],y[1],y[2]))
-
                 elif(choice_store == 3):
                     mycursor.execute("select * from stores2 where Store_ID=%s",(sid,))
                     result=mycursor.fetchall() #list of all products
+                    print(result)
                     for x in result:
-                        mycursor.execute("select * from product where pid=%s",(x[1],)) #searching for the particular pid 
+                        mycursor.execute("select * from product where pid=%s",(x[2],)) #searching for the particular pid 
                         result2=mycursor.fetchall()
-                        for y in result2: 
+                        for y in result2:
                             print("PID:%s \nProduct Name:%s \nPrice:%s \nCategory ID:%s \nStock:%s "%(y[0],y[1],y[2],y[3],x[0]))
 
                 elif(choice_store == 4):
-
-                    pid=int(input("Enter pid:"))
-                    stock=int(input("Enter stock:"))
-                    wh_id = int(input("Enter warehouse id"))
+                    pid=(input("Enter pid:"))
+                    stock=(input("Enter stock:"))
+                    wh_id =(input("Enter warehouse id"))
                     if(avail_w(wh_id , stock , pid)) :
                         mycursor.execute("Select pid from product")
                         result=mycursor.fetchall()
-                        print(result)
                         for x in result:
-                            if(x[0]==int(pid)):
+                            if((int)(x[0]) == (int)(pid)):
+                                print("YES")
                                 mycursor.execute("select * from stores2 where Prd_ID=%s and Store_ID=%s",(pid,sid))
                                 result2=mycursor.fetchall()
                                 if(result2.__len__()>0):
@@ -250,26 +230,11 @@ while(1):
                                     mycursor.execute("insert into stores2 values(%s,%s,%s)",(stock,sid,pid))
                                     mydb.commit()
                                     print("Product added to store!")
-
-                elif(choice_store == 5):
-
-                    pid = int(input("Enter pid:"))
-                    stock = int(input("Enter updated stock:"))
-                    wh_id = int(input("Enter warehouse id"))
-                    if(avail_w(wh_id , stock , pid)) :
-                        mycursor.execute("Select pid from product")
-                        result = mycursor.fetchall()
-                        for x in result:
-                            if(x[0] == int(pid)):
-                                mycursor.execute("select * from stores2 where Prd_ID=%s and Store_ID=%s", (pid, sid))
-                                result2 = mycursor.fetchall()
-                                if(result2.__len__() > 0):
-                                    mycursor.execute("update stores2 set Stock=%s where Prd_ID=%s and Store_ID=%s",(stock,pid,sid))
-                                    mydb.commit()
                                     break
-                elif(choice_store == 6):
+                    else :
+                        print("Product not in the warehouse or stock not available")
+                elif(choice_store == 5):
                     break
-                
         else: 
             print("Invalid store Id ")
         
